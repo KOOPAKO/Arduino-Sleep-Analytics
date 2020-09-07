@@ -1,0 +1,80 @@
+  
+<html>
+  <head>
+    <title>Sleep Analytics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css')}}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+  <body>
+    <nav>
+      <div class="nav-wrapper deep-purple darken-4">
+        <a class="brand-logo">Sleep Analytics</a>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="row">
+        <div class="col s12 l6">
+          <div class="card white">
+            <div class="card-content">
+              <span class="card-title">Introduction</span>
+              <p>This application aims to help the user determine factors that are effecting their sleep.  
+                Sleep is recognised by the number of movements in a minute (ie. A high number of movements would indicate the user is likely awake). 
+                Figure 1 shows the number of movements over the recorded time to try help the user understand what time they fell asleep/woke up.  The other charts aim to show any relationships between a factor that may affect their sleep and movements per minute by displaying this data in a scatter plot.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col s12 l6">
+            <div class="card white">
+              <ul class="collection with-header">
+                <li class="collection-header"><h4>Current Sensor Readings:</h4></li>
+                <li class="collection-item">millis: <span id="millis"></span></li>
+                <li class="collection-item">stamp: <span id="stamp"></span></li>
+                <li class="collection-item">datetime: <span id="datetime"></span></li>
+                <li class="collection-item">Motion Sensor: <span id="motion"></span></li>
+                <li class="collection-item">Current temperature: <span id="temperature"></span>&#8451</li>
+                <li class="collection-item">Current humidity: <span id="humidity"></span>%</li>
+                <li class="collection-item">Current light level: <span id="lightlevel"></span></li>
+                <li class="collection-item">Current sound level: <span id="soundlevel"></span></li>
+              </ul>
+            </div>
+        </div>
+      </div>
+        <div class="row">
+          <div class="col s12">
+            <div class="card white">
+              <div class="chartDiv" id="motionTimeChart"></div>
+            </div>
+          </div>
+          <div class="col m12 l6">
+            <div class="card white">
+              <div class="chartDiv" id="motionTempChart"></div>
+            </div>
+          </div>
+          <div class="col m12 l6">
+            <div class="card white">
+              <div class="chartDiv" id="motionHumChart"></div>
+            </div>
+          </div>
+          <div class="col m12 l6">
+            <div class="card white">
+              <div class="chartDiv" id="motionLumChart"></div>
+            </div>
+          </div>
+          <div class="col m12 l6">
+            <div class="card white">
+              <div class="chartDiv" id="motionVolChart"></div>
+            </div>
+          </div>
+        </div>
+        <script src="{{ url_for('static', filename='js/chartScript.js') }}"></script>
+      {% block content %}{% endblock %}
+    </div>
+    <script src="{{ url_for('static', filename='js/refreshValues.js')}}"></script>
+  </body>
+</html>
