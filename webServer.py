@@ -54,5 +54,5 @@ def _chart_data():
 
 # leave at end of code \/
 if __name__ == "__main__":
-    app.run(debug='True', host='0.0.0.0', port=100)
+    app.run(debug='True', host='0.0.0.0', port=5000)
 # leave at end of code /\
