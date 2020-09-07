@@ -1,7 +1,7 @@
 import serial, time, csv, os, os.path
 from datetime import datetime
 
-serComPort = 'COM3'
+serComPort = 'COM3' # '/dev/ttyACM0' on Raspberry Pi
 serComBaud = 9600
 
 cmdSerial = serial.Serial(serComPort, serComBaud)
