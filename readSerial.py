@@ -3,7 +3,7 @@ from datetime import datetime
 
 json.dump(0, open('./capture.json', 'w'))
 
-serComPort = 'COM3'
+serComPort = 'COM3' # '/dev/ttyACM0' on Raspberry Pi
 serComBaud = 9600
 
 def initialise_read():
