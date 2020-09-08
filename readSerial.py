@@ -1,26 +1,32 @@
-import serial, time, csv, os, os.path
+import serial, time, csv, os, os.path, json
 from datetime import datetime
 
-serComPort = 'COM3' # '/dev/ttyACM0' on Raspberry Pi
+json.dump(0, open('./capture.json', 'w'))
+
+serComPort = 'COM3'
 serComBaud = 9600
 
-cmdSerial = serial.Serial(serComPort, serComBaud)
-time.sleep(2) # wait 2 seconds for COM port connection to open
+def initialise_read():
+    global cmdSerial
+    global logNumber
+    cmdSerial = serial.Serial(serComPort, serComBaud)
+    time.sleep(2) # wait 2 seconds for COM port connection to open
 
-headers = ['millis', 'stamp', 'datetime', 'motion', 'temp', 'hum']
-perMinuteHeaders = ['stamp', 'motion', 'temp', 'hum']
+    headers = ['millis', 'stamp', 'datetime', 'motion', 'temp', 'hum']
+    perMinuteHeaders = ['stamp', 'motion', 'temp', 'hum']
 
-DIR = "./data"
-logNumber = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
+    DIR = "./data"
+    logNumber = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
 
-# initialise log files
-with open(f"./data/log{logNumber}.csv", "a", newline="") as f:
-    writer = csv.writer(f)
-    writer.writerow(headers)
+    # initialise log files
+    with open(f"./data/log{logNumber}.csv", "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
 
-with open(f"./data/perMinute/log{logNumber}.csv", "a", newline="") as f:
-    writer = csv.writer(f)
-    writer.writerow(perMinuteHeaders)
+    with open(f"./data/perMinute/log{logNumber}.csv", "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(perMinuteHeaders)
+    
 
 # validation functions
 def is_integer(num):
@@ -77,6 +83,9 @@ def is_end_of_minute(val):
         return False
 
 def generate_minute_row():
+    global countMotion
+    global tempList
+    global humList
     with open(f'./data/log{logNumber}.csv', 'r') as f:
         reader = csv.reader(f)
         rows=list(reader)
@@ -99,27 +108,64 @@ countMotion = 0
 tempList = []
 humList = []
 
-while True:
-    line = cmdSerial.readline().decode("utf-8").replace('\r\n', '')
-    if line.count(', ') == 5: # ensure line is a complete list of data (sometimes this is not the case and would lead to invalid rows)
-        myList = line.split(", ")
-        if validate_row(myList): # ensure data is valid before appending
-            if is_end_of_minute(myList[2]):
-                minuteList = generate_minute_row()
-                with open(f"./data/perMinute/log{logNumber}.csv", "a", newline="") as f:
-                    writer = csv.writer(f)
-                    writer.writerow(minuteList)
-                    # reset vars
-                    countMotion = 0
-                    tempList = []
-                    humList = []
-            if myList[3] == 'Active':
-                countMotion += 1
-            tempList.append(myList[4])
-            humList.append(myList[5])
+def capture_data(first):
+    global countMotion
+    global tempList
+    global humList
+    while True:
+        determiner = 0
+        try:
+            determiner = json.load(open('./capture.json'))
+        except:
+            continue
+        if determiner == 1:
+            line = cmdSerial.readline().decode("utf-8").replace('\r\n', '')
+            if line.count(', ') == 5: # ensure line is a complete list of data (sometimes this is not the case and would lead to invalid rows)
+                myList = line.split(", ")
+                if first and myList[0] == '999':
+                    first = False
+                if not first:
+                    if validate_row(myList): # ensure data is valid before appending
+                        if is_end_of_minute(myList[2]):
+                            minuteList = generate_minute_row()
+                            with open(f"./data/perMinute/log{logNumber}.csv", "a", newline="") as f:
+                                writer = csv.writer(f)
+                                writer.writerow(minuteList)
+                                # reset vars
+                                countMotion = 0
+                                tempList = []
+                                humList = []
+                        if myList[3] == 'Active':
+                            countMotion += 1
+                        tempList.append(myList[4])
+                        humList.append(myList[5])
 
-            with open(f"./data/log{logNumber}.csv", "a", newline="") as f:
-                writer = csv.writer(f)
-                writer.writerow(myList)
+                        with open(f"./data/log{logNumber}.csv", "a", newline="") as f:
+                            writer = csv.writer(f)
+                            writer.writerow(myList)
+        elif determiner == 0:
+            cmdSerial.close()
+            break
+    check_for_capture()
+
+def check_for_capture():
+    global countMotion
+    global tempList
+    global humList
+    countMotion = 0
+    tempList = []
+    humList = []
+    while True:
+        try:
+            determiner = json.load(open('./capture.json'))
+            if determiner == 1:
+                break
+        except:
+            continue
+    initialise_read()
+    capture_data(True)
+
+check_for_capture()
+
 
 
