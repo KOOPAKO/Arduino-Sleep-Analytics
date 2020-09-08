@@ -9,17 +9,65 @@
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+      var recording = {{ recording }};
+      var continuous;
+    </script>
+    <style>
+      {% if recording == 0 %}
+      .notRecording {
+        display: block;
+      }
+      .recording {
+        display: none;
+      }
+      {% else %}
+      .notRecording {
+        display: none;
+      }
+      .recording {
+        display: block;
+      }
+      {% endif %}
+    </style>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   </head>
   <body>
+    <!-- Dropdown Structure -->
+    <ul id='filedropdown' class='dropdown-content'>
+      <li><a onclick="drawChart()">Latest</a></li>
+      {% for file in fileList %}
+      <li><a onclick="initiate_old('{{ file["file"] }}', '{{ file["string"] }}')">{{ file["string"] }}</a></li>
+      {% endfor %}
+    </ul>
+    <!-- sideDropdown Structure -->
+    <ul id='sidefiledropdown' class='dropdown-content'>
+      <li><a onclick="drawChart()">Latest</a></li>
+      {% for file in fileList %}
+      <li><a onclick="initiate_old('{{ file["file"] }}', '{{ file["string"] }}')">{{ file["string"] }}</a></li>
+      {% endfor %}
+    </ul>
     <nav>
       <div class="nav-wrapper deep-purple darken-4">
         <a class="brand-logo">Sleep Analytics</a>
+        <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li class="notRecording"><a onclick="start_recording()"><i class="material-icons left">create</i>Start Recording</a></li>
+          <li class="recording"><a onclick="stop_recording()"><i class="material-icons left">block</i>Stop Recording</a></li>
+          <!-- Dropdown Trigger -->
+          <li><a class='dropdown-trigger' data-target='filedropdown'>Select Data<i class="material-icons right">arrow_drop_down</i></a></li>
+        </ul>
       </div>
     </nav>
+    <ul class="sidenav" id="mobile-menu">
+      <li class="notRecording"><a onclick="start_recording()"><i class="material-icons left">create</i>Start Recording</a></li>
+      <li class="recording"><a onclick="stop_recording()"><i class="material-icons left">block</i>Stop Recording</a></li>
+      <!-- Dropdown Trigger -->
+      <li><a class='dropdown-trigger' data-target='sidefiledropdown'>Select Data<i class="material-icons right">arrow_drop_down</i></a></li>
+    </ul>
     <div class="container">
       <div class="row">
-        <div class="col s12 l6">
+        <div class="col s12">
           <div class="card white">
             <div class="card-content">
               <span class="card-title">Introduction</span>
@@ -29,7 +77,7 @@
             </div>
           </div>
         </div>
-        <div class="col s12 l6">
+        <div class="col s12 recording">
             <div class="card white">
               <ul class="collection with-header">
                 <li class="collection-header"><h4>Current Sensor Readings:</h4></li>
@@ -44,6 +92,13 @@
               </ul>
             </div>
         </div>
+      <div class="row">
+        <div class="col s12">
+          <div class="card white">
+            <h5 class="center-align" style="padding-top: 4px; padding-bottom: 4px;">Charts for: <span id="chart-heading"></span></h5>
+          </div>
+        </div>
+      </div>
       </div>
         <div class="row">
           <div class="col s12">
@@ -72,9 +127,10 @@
             </div>
           </div>
         </div>
-        <script src="{{ url_for('static', filename='js/chartScript.js') }}"></script>
       {% block content %}{% endblock %}
     </div>
+    <script src="{{ url_for('static', filename='js/chartScript.js') }}"></script>
     <script src="{{ url_for('static', filename='js/refreshValues.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/buttonHandler.js')}}"></script>
   </body>
 </html>
