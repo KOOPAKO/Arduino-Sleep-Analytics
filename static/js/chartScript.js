@@ -17,10 +17,19 @@ function changeTimezone(date) {
     return new Date(date.getTime() + diff);
   
   }
+function initiate_old(file, string){
+    continuous = 0;
+    drawChart(file, string);
+}
 
-function drawChart() {
+function drawChart(file="latest", string="latest") {
+    $('#chart-heading').html(string)
     $.ajax({
         url: '/_chart_data/',
+        data: {"file": file},
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
         success: function(output){
             // Movements over time line chart
             var data = new google.visualization.DataTable();
@@ -86,5 +95,7 @@ function drawChart() {
             motionHumChart.draw(data, options);
         }
     })
-    setTimeout(drawChart, 1000)
+    if(recording == 1 && continuous == 1){
+        setTimeout(drawChart, 1000)
+    }
 }
