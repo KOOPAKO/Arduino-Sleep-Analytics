@@ -1,4 +1,4 @@
-import serial, time, csv, os, os.path, json
+import serial, time, csv, os, os.path, json, math
 from datetime import datetime
 
 json.dump(0, open('./capture.json', 'w'))
@@ -38,10 +38,13 @@ def is_integer(num):
 
 def is_decimal(dec):
     try:
-        float(dec)
+        x = float(dec)
+        if math.isnan(x):
+            return False
+        else:
+            return True
     except ValueError:
         return False
-    return True
 
 def is_time(val):
     try:
@@ -126,6 +129,7 @@ def capture_data(first):
                     first = False
                 if not first:
                     if validate_row(myList): # ensure data is valid before appending
+                        print(line)
                         if is_end_of_minute(myList[2]):
                             minuteList = generate_minute_row()
                             with open(f"./data/perMinute/log{logNumber}.csv", "a", newline="") as f:
@@ -166,6 +170,3 @@ def check_for_capture():
     capture_data(True)
 
 check_for_capture()
-
-
-
