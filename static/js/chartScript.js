@@ -1,3 +1,6 @@
+var activeChart = "latest";
+var activeName = "latest"
+
 google.charts.load('current', {'packages':['corechart']});
 
 google.charts.setOnLoadCallback(drawChart);
@@ -18,7 +21,20 @@ function changeTimezone(date) {
   
   }
 function initiate_old(file, string){
-    continuous = 0;
+    if(file == "latest"){
+        activeChart = "latest";
+        activeName = "latest"
+        if(recording == 1){
+            continuous = 1;
+        } else {
+            continuous = 0;
+        }
+
+    } else {
+        continuous = 0;
+        activeChart = file;
+        activeName = string;
+    }    
     drawChart(file, string);
 }
 
@@ -53,46 +69,91 @@ function drawChart(file="latest", string="latest") {
             };
             var motionTimeChart = new google.visualization.LineChart(document.getElementById('motionTimeChart'));
             motionTimeChart.draw(data, options);
-            // Motion vs Room Temperature Scatter chart
-            var data = new google.visualization.DataTable();
-            data.addColumn('number', 'temps')
-            data.addColumn('number', 'motions')
-            output.forEach(function (item, index) {
-                data.addRow([
-                    item["temp"], item["motions"]
-                ])
-            });
-            var options = {
-                'title': 'Figure 2: Relationship between Motion and Room Temperature',
-                hAxis: {
-                    title: 'Temp ℃'
-                },
-                vAxis: {
-                    title: 'Number of Movements'
-                }
-            };
-            var motionTempChart = new google.visualization.ScatterChart(document.getElementById('motionTempChart'));
-            motionTempChart.draw(data, options);
-            // Motion vs Room Humidity Chart
-            var data = new google.visualization.DataTable();
-            data.addColumn('number', 'hums')
-            data.addColumn('number', 'motions')
-            output.forEach(function (item, index) {
-                data.addRow([
-                    item["hum"], item["motions"]
-                ])
-            });
-            var options = {
-                'title': 'Figure 3: Relationship between Motion and Room Humidity',
-                hAxis: {
-                    title: 'Humidity %'
-                },
-                vAxis: {
-                    title: 'Number of Movements'
-                }
-            };
-            var motionHumChart = new google.visualization.ScatterChart(document.getElementById('motionHumChart'));
-            motionHumChart.draw(data, options);
+            if (!($('#chartToggle').prop('checked'))){
+                // Motion vs Room Temperature Scatter chart
+                var data = new google.visualization.DataTable();
+                data.addColumn('number', 'temps')
+                data.addColumn('number', 'motions')
+                output.forEach(function (item, index) {
+                    data.addRow([
+                        item["temp"], item["motions"]
+                    ])
+                });
+                var options = {
+                    'title': 'Figure 2: Relationship between Motion and Room Temperature',
+                    hAxis: {
+                        title: 'Temp ℃'
+                    },
+                    vAxis: {
+                        title: 'Number of Movements'
+                    }
+                };
+                var motionTempChart = new google.visualization.ScatterChart(document.getElementById('motionTempChart'));
+                motionTempChart.draw(data, options);
+                // Motion vs Room Humidity Chart
+                var data = new google.visualization.DataTable();
+                data.addColumn('number', 'hums')
+                data.addColumn('number', 'motions')
+                output.forEach(function (item, index) {
+                    data.addRow([
+                        item["hum"], item["motions"]
+                    ])
+                });
+                var options = {
+                    'title': 'Figure 3: Relationship between Motion and Room Humidity',
+                    hAxis: {
+                        title: 'Humidity %'
+                    },
+                    vAxis: {
+                        title: 'Number of Movements'
+                    }
+                };
+                var motionHumChart = new google.visualization.ScatterChart(document.getElementById('motionHumChart'));
+                motionHumChart.draw(data, options);
+            } else if($('#chartToggle').prop('checked')){
+                // Motion vs Room Temperature Scatter chart
+                var data = new google.visualization.DataTable();
+                data.addColumn('datetime', 'Date/Time')
+                data.addColumn('number', 'temps')
+                output.forEach(function (item, index) {
+                    var dateVar = changeTimezone(new Date(parseInt(item["stamp"]) * 1000));
+                    data.addRow([
+                        dateVar, item["temp"]
+                    ])
+                });
+                var options = {
+                    'title': 'Figure 2: Temperature over Time',
+                    hAxis: {
+                        title: 'Time'
+                    },
+                    vAxis: {
+                        title: 'Temp ℃'
+                    }
+                };
+                var motionTempChart = new google.visualization.LineChart(document.getElementById('motionTempChart'));
+                motionTempChart.draw(data, options);
+                // Motion vs Room Humidity Chart
+                var data = new google.visualization.DataTable();
+                data.addColumn('datetime', 'Date/Time')
+                data.addColumn('number', 'hums')
+                output.forEach(function (item, index) {
+                    var dateVar = changeTimezone(new Date(parseInt(item["stamp"]) * 1000));
+                    data.addRow([
+                        dateVar, item["hum"]
+                    ])
+                });
+                var options = {
+                    'title': 'Figure 3: Humidity over Time',
+                    hAxis: {
+                        title: 'Time'
+                    },
+                    vAxis: {
+                        title: 'Humidity %'
+                    }
+                };
+                var motionHumChart = new google.visualization.LineChart(document.getElementById('motionHumChart'));
+                motionHumChart.draw(data, options);
+            }
         }
     })
     if(recording == 1 && continuous == 1){
