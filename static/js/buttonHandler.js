@@ -1,6 +1,9 @@
 $('.dropdown-trigger').dropdown();
 $('.sidenav').sidenav();
 
+$(document).on('change', '#chartToggle', function(){
+    drawChart(activeChart, activeName)
+});
 
 function start_recording() {
     $.ajax({
@@ -8,7 +11,9 @@ function start_recording() {
         success: function(){
             drawChart();
             recording = 1;
-            continuous = 1;       
+            continuous = 1;    
+            activeChart = "latest";
+            activeName = "latest";
             $('.recording').css('display', 'block');
             $('.notRecording').css('display', 'none');
         }
