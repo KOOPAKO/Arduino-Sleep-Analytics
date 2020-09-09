@@ -35,7 +35,7 @@
   <body>
     <!-- Dropdown Structure -->
     <ul id='filedropdown' class='dropdown-content'>
-      <li><a onclick="drawChart()">Latest</a></li>
+      <li><a onclick="initiate_old('latest', 'latest')">Latest</a></li>
       {% for file in fileList %}
       <li><a onclick="initiate_old('{{ file["file"] }}', '{{ file["string"] }}')">{{ file["string"] }}</a></li>
       {% endfor %}
@@ -92,18 +92,29 @@
               </ul>
             </div>
         </div>
-      <div class="row">
-        <div class="col s12">
-          <div class="card white">
-            <h5 class="center-align" style="padding-top: 4px; padding-bottom: 4px;">Charts for: <span id="chart-heading"></span></h5>
-          </div>
-        </div>
-      </div>
       </div>
         <div class="row">
           <div class="col s12">
             <div class="card white">
+              <h5 class="center-align" style="padding-top: 4px; padding-bottom: 4px;">Charts for: <span id="chart-heading"></span></h5>
+            </div>
+          </div>
+          <div class="col s12">
+            <div class="card white">
               <div class="chartDiv" id="motionTimeChart"></div>
+            </div>
+          </div>
+          <div class="col s12">
+            <div class="card white">
+              <h6 class="center-align" style="padding-top: 4px; padding-bottom: 4px;">Toggle Figures 2-5 between Scatter and Line Charts: </h6>
+              <div class="switch center-align" style="padding-top: 2px; padding-bottom: 6px;">
+                <label>
+                  Scatter
+                  <input type="checkbox" id="chartToggle">
+                  <span class="lever"></span>
+                  Line
+                </label>
+              </div>
             </div>
           </div>
           <div class="col m12 l6">
