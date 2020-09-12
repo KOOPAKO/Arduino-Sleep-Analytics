@@ -12,8 +12,8 @@ def initialise_read():
     cmdSerial = serial.Serial(serComPort, serComBaud)
     time.sleep(2) # wait 2 seconds for COM port connection to open
 
-    headers = ['millis', 'stamp', 'datetime', 'motion', 'temp', 'hum']
-    perMinuteHeaders = ['stamp', 'motion', 'temp', 'hum']
+    headers = ['millis', 'stamp', 'datetime', 'motion', 'temp', 'hum', 'lux', 'vol']
+    perMinuteHeaders = ['stamp', 'motion', 'temp', 'hum', 'lux', 'vol']
 
     DIR = "./data"
     logNumber = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
@@ -69,9 +69,9 @@ def is_motion(val):
         return False
 
 def validate_row(row):
-    if len(row) == 6: # ensure all fields are present
-        if is_integer(row[0]) and is_integer(row[1]): # ensure millis and stamp are integers
-            if is_decimal(row[4]) and is_decimal(row[5]): # ensure temp and hum are decimals
+    if len(row) == 8: # ensure all fields are present
+        if is_integer(row[0]) and is_integer(row[1]) and is_integer(row[7]): # ensure millis and stamp and vol are integers
+            if is_decimal(row[4]) and is_decimal(row[5]) and is_decimal(row[6]): # ensure temp and hum and lux are decimals
                 if is_time(row[2]): # ensure datetime in correct format
                     if is_motion(row[3]): #ensure motion is in correct format
                         if is_unique(row): # ensure that it is not a duplicate entry
@@ -89,6 +89,8 @@ def generate_minute_row():
     global countMotion
     global tempList
     global humList
+    global luxList
+    global volList
     with open(f'./data/log{logNumber}.csv', 'r') as f:
         reader = csv.reader(f)
         rows=list(reader)
@@ -104,17 +106,31 @@ def generate_minute_row():
     for item in humList:
         total += float(item)
     avgHum = round(total / len(humList), 2)
-    minuteRow = [stamp, countMotion, avgTemp, avgHum]
+
+    total = 0
+    for item in luxList:
+        total += float(item)
+    avgLux = round(total / len(luxList), 2)
+
+    total = 0
+    for item in volList:
+        total += int(item)
+    avgVol = round(total / len(volList), 2)
+    minuteRow = [stamp, countMotion, avgTemp, avgHum, avgLux, avgVol]
     return minuteRow
 
 countMotion = 0
 tempList = []
 humList = []
+luxList = []
+volList = []
 
 def capture_data(first):
     global countMotion
     global tempList
     global humList
+    global luxList
+    global volList
     while True:
         determiner = 0
         try:
@@ -123,7 +139,7 @@ def capture_data(first):
             continue
         if determiner == 1:
             line = cmdSerial.readline().decode("utf-8").replace('\r\n', '')
-            if line.count(', ') == 5: # ensure line is a complete list of data (sometimes this is not the case and would lead to invalid rows)
+            if line.count(', ') == 7: # ensure line is a complete list of data (sometimes this is not the case and would lead to invalid rows)
                 myList = line.split(", ")
                 if first and myList[0] == '999':
                     first = False
@@ -139,10 +155,14 @@ def capture_data(first):
                                 countMotion = 0
                                 tempList = []
                                 humList = []
+                                luxList = []
+                                volList = []
                         if myList[3] == 'Active':
                             countMotion += 1
                         tempList.append(myList[4])
                         humList.append(myList[5])
+                        luxList.append(myList[6])
+                        volList.append(myList[7])
 
                         with open(f"./data/log{logNumber}.csv", "a", newline="") as f:
                             writer = csv.writer(f)
@@ -156,9 +176,13 @@ def check_for_capture():
     global countMotion
     global tempList
     global humList
+    global luxList
+    global volList
     countMotion = 0
     tempList = []
     humList = []
+    luxList = []
+    volList = []
     while True:
         try:
             determiner = json.load(open('./capture.json'))
