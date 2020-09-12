@@ -9,6 +9,8 @@ function refresh_values(){
                 $("#motion").html(JSON.stringify(output["motion"]).split("\"").join(""));
                 $('#temperature').html(JSON.stringify(output["temp"]).split("\"").join(""));
                 $('#humidity').html(JSON.stringify(output["hum"]).split("\"").join(""));
+                $('#lightlevel').html(JSON.stringify(output["lux"]).split("\"").join(""));
+                $('#soundlevel').html(JSON.stringify(output["vol"]).split("\"").join(""));
             }
         })
     }
