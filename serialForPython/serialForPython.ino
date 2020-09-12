@@ -5,11 +5,13 @@
 #include <Wire.h>
 #include "RTClib.h"
 #include <string.h>
+#include <BH1750.h>
 
 //Constants
 #define DHTPIN 2     // what pin we're connected to
 #define DHTTYPE DHT22   // DHT 22  (AM2302)
 DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
+BH1750 lightMeter;
 
 #define LOG_INTERVAL  1000 // mills between entries. 
 // how many milliseconds before writing the logged data permanently to disk
@@ -22,11 +24,14 @@ uint32_t syncTime = 0; // time of last sync()
 //Variables
 float hum;  //Stores humidity value
 float temp; //Stores temperature value
+float lux; // stores light value
+int sound; // stores sound value
 char currentMotion; // Motion function output
 long previousMillis; // Used to calculate delay
 long currentMillis; // Used to calculate delay
 long requiredDelay; // used for added delay if nessesary
-String output;
+String output; // gets printed to serial
+
 
 RTC_DS1307 RTC; // define the Real Time Clock object
 
@@ -46,15 +51,14 @@ void setup()
     */
     initRTC();
   
-  
-    /**
-       Now we print the header. The header is the first line of the file and helps your spreadsheet or math program identify whats coming up next.
-       The data is in CSV (comma separated value) format so the header is too: "millis,stamp, datetime,hum,temp" the first item millis is milliseconds since the Arduino started,
-       stamp is the timestamp, datetime is the time and date from the RTC in human readable format, hum is the humidity and temp is the temperature read.
-    */
+    Wire.begin();
+    
+    lightMeter.begin();    
+    
     // Serial.println("millis,stamp,datetime,motion,temp,hum"); <- order of output
   
     pinMode(6, INPUT);
+    pinMode(0, INPUT);
     dht.begin();
 }
 
@@ -107,16 +111,22 @@ void loop()
       output.concat("Inactive");
     }
     
-    //Read data and store it to variables hum and temp
+    //Read data and store it to variables hum and temp and lux and sound
     hum = dht.readHumidity();
     temp= dht.readTemperature();
+    lux = lightMeter.readLightLevel();
+    sound = analogRead(0);
 
-    //Print temp and humidity values to serial monitor
+    //Print temp and humidity and lux and sound values to serial monitor
     
     output.concat(", ");
     output.concat(temp);
     output.concat(", ");
-    output.concat(hum);    
+    output.concat(hum);
+    output.concat(", ");
+    output.concat(lux);
+    output.concat(", ");
+    output.concat(sound);    
     
     // reset motionVar
     currentMotion = false;
