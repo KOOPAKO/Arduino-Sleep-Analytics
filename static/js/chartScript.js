@@ -47,6 +47,7 @@ function drawChart(file="latest", string="latest") {
         dataType: 'json',
         contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
         success: function(output){
+            console.log(output)
             // Movements over time line chart
             var data = new google.visualization.DataTable();
             data.addColumn('datetime', 'Date/Time')
@@ -110,8 +111,48 @@ function drawChart(file="latest", string="latest") {
                 };
                 var motionHumChart = new google.visualization.ScatterChart(document.getElementById('motionHumChart'));
                 motionHumChart.draw(data, options);
+                // Motion vs Lux Chart
+                var data = new google.visualization.DataTable();
+                data.addColumn('number', 'hums')
+                data.addColumn('number', 'lux')
+                output.forEach(function (item, index) {
+                    data.addRow([
+                        item["lux"], item["motions"]
+                    ])
+                });
+                var options = {
+                    'title': 'Figure 4: Relationship between Motion and Lux',
+                    hAxis: {
+                        title: 'Lux lx'
+                    },
+                    vAxis: {
+                        title: 'Number of Movements'
+                    }
+                };
+                var motionHumChart = new google.visualization.ScatterChart(document.getElementById('motionLuxChart'));
+                motionHumChart.draw(data, options);
+                // Motion vs Vol Chart
+                var data = new google.visualization.DataTable();
+                data.addColumn('number', 'hums')
+                data.addColumn('number', 'vol')
+                output.forEach(function (item, index) {
+                    data.addRow([
+                        item["vol"], item["motions"]
+                    ])
+                });
+                var options = {
+                    'title': 'Figure 5: Relationship between Motion and Sound Level',
+                    hAxis: {
+                        title: 'Sound Level'
+                    },
+                    vAxis: {
+                        title: 'Number of Movements'
+                    }
+                };
+                var motionHumChart = new google.visualization.ScatterChart(document.getElementById('motionVolChart'));
+                motionHumChart.draw(data, options);
             } else if($('#chartToggle').prop('checked')){
-                // Motion vs Room Temperature Scatter chart
+                // Room temp over time chart
                 var data = new google.visualization.DataTable();
                 data.addColumn('datetime', 'Date/Time')
                 data.addColumn('number', 'temps')
@@ -132,7 +173,7 @@ function drawChart(file="latest", string="latest") {
                 };
                 var motionTempChart = new google.visualization.LineChart(document.getElementById('motionTempChart'));
                 motionTempChart.draw(data, options);
-                // Motion vs Room Humidity Chart
+                // Hum over time chart
                 var data = new google.visualization.DataTable();
                 data.addColumn('datetime', 'Date/Time')
                 data.addColumn('number', 'hums')
@@ -153,6 +194,49 @@ function drawChart(file="latest", string="latest") {
                 };
                 var motionHumChart = new google.visualization.LineChart(document.getElementById('motionHumChart'));
                 motionHumChart.draw(data, options);
+                // Lux over time chart
+                var data = new google.visualization.DataTable();
+                data.addColumn('datetime', 'Date/Time')
+                data.addColumn('number', 'lux')
+                output.forEach(function (item, index) {
+                    var dateVar = changeTimezone(new Date(parseInt(item["stamp"]) * 1000));
+                    data.addRow([
+                        dateVar, item["lux"]
+                    ])
+                });
+                var options = {
+                    'title': 'Figure 4: Lux over Time',
+                    hAxis: {
+                        title: 'Time'
+                    },
+                    vAxis: {
+                        title: 'Lux lx'
+                    }
+                };
+                var motionHumChart = new google.visualization.LineChart(document.getElementById('motionLuxChart'));
+                motionHumChart.draw(data, options);
+                // Vol over time chart
+                var data = new google.visualization.DataTable();
+                data.addColumn('datetime', 'Date/Time')
+                data.addColumn('number', 'vol')
+                output.forEach(function (item, index) {
+                    var dateVar = changeTimezone(new Date(parseInt(item["stamp"]) * 1000));
+                    data.addRow([
+                        dateVar, item["vol"]
+                    ])
+                });
+                var options = {
+                    'title': 'Figure 5: Sound Level over Time',
+                    hAxis: {
+                        title: 'Time'
+                    },
+                    vAxis: {
+                        title: 'Sound Level'
+                    }
+                };
+                var motionHumChart = new google.visualization.LineChart(document.getElementById('motionVolChart'));
+                motionHumChart.draw(data, options);
+                
             }
         }
     })
