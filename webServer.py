@@ -44,7 +44,9 @@ def _refresh_data():
             "datetime"  :   lastLine[2],
             "motion"    :   lastLine[3],
             "temp"      :   lastLine[4],
-            "hum"       :   lastLine[5]
+            "hum"       :   lastLine[5],
+            "lux"       :   lastLine[6],
+            "vol"       :   lastLine[7]
         })
 
 @app.route('/_chart_data/', methods=["POST"])
@@ -62,10 +64,20 @@ def _chart_data():
     temps = [float(i) for i in temps]
     hums = data['hum'].tolist()
     hums = [float(i) for i in hums]
-    output = []
-    
-    for index, val in enumerate(stamps):
-        output.append({"stamp": val, "motions": motions[index], "temp": temps[index], "hum": hums[index]})
+    try:
+        lux = data['lux']
+        lux = [float(i) for i in lux]
+        vol = data['vol']
+        vol = [int(i) for i in vol]
+        output = []
+        
+        for index, val in enumerate(stamps):
+            output.append({"stamp": val, "motions": motions[index], "temp": temps[index], "hum": hums[index], "lux": lux[index], "vol": vol[index]})
+    except:
+        output = []
+        
+        for index, val in enumerate(stamps):
+            output.append({"stamp": val, "motions": motions[index], "temp": temps[index], "hum": hums[index]})
 
     return jsonify(output)
 
@@ -78,9 +90,6 @@ def _start_recording():
 def _stop_recording():
     json.dump(0, open('./capture.json', 'w'))
     return "Success"
-    
-
-
 
 # leave at end of code \/
 if __name__ == "__main__":
